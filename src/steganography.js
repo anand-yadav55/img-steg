@@ -5,7 +5,8 @@ function loadImage(e) {
   let reader = new FileReader();
   reader.onload = (event) => {
     let regex = /data:image/;
-    if (regex.test(reader.result)) {      //Checks if the uploaded file is an image 
+    if (regex.test(reader.result)) {
+      //Checks if the uploaded file is an image
       isImageUpload = true;
       let dataUrl = event.target.result;
       let img = new Image();
@@ -14,24 +15,25 @@ function loadImage(e) {
         ctx.canvas.width = img.width;
         ctx.canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
-      }
+      };
       img.src = dataUrl;
     } else {
       document.getElementById('upload-photo').value = '';
-      alert("Please upload an image!");
+      alert('Please upload an image!');
     }
   };
   reader.readAsDataURL(e.target.files[0]);
-};
+}
 
 // Encodes the secret message on the original and displays the encoded image
 function encode() {
-  if (isImageUpload) {      //Checks if an image is uploaded  
+  if (isImageUpload) {
+    //Checks if an image is uploaded
     let message = document.getElementById('secret').value;
     if (message.length > 1000) {
-      alert("The message is too big to encode");
+      alert('The message is too big to encode');
     } else {
-      document.getElementById('encoded-image').style.display = 'block';
+      document.getElementById('encoded-image').style.display = 'none';
       document.getElementById('secret').value = '';
       let output = document.getElementById('encoded-image');
       let canvas = document.getElementById('canvas');
@@ -39,22 +41,29 @@ function encode() {
       let imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       encodeMessage(imgData.data, message);
       ctx.putImageData(imgData, 0, 0);
-      alert('Image encoded!\n Save below image for further use!');
       output.src = canvas.toDataURL();
+      var img = canvas.toDataURL('image/png');
+      var a = document.createElement('a');
+      a.href = img;
+      a.download = 'output.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      alert('Image encoded!\n image is downloaded!');
     }
   } else {
     document.getElementById('upload-photo').value = '';
-    alert("Please upload an image!");
+    alert('Please upload an image!');
   }
-};
+}
 
 // Decodes the secret message from the canvas and alerts it to the user
 function decode() {
   let ctx = document.getElementById('canvas').getContext('2d');
   let imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
   let message = decodeMessage(imgData.data);
-  alert("The message encode is:\n" + message);
-};
+  alert('The message encode is:\n' + message);
+}
 
 // Encodes message using LSB method
 function encodeMessage(colors, message) {
@@ -71,7 +80,7 @@ function encodeMessage(colors, message) {
     colors[loc] = 255;
     pos++;
   }
-};
+}
 
 // Decodes message from the image
 function decodeMessage(colors) {
@@ -89,16 +98,16 @@ function decodeMessage(colors) {
     message.push(String.fromCharCode(code));
   }
   return message.join('');
-};
+}
 
 function getBit(number, location) {
-  return ((number >> location) & 1);
-};
+  return (number >> location) & 1;
+}
 
 // sets the bit in 'location' to 'bit' (either a 1 or 0)
 function setBit(number, location, bit) {
   return (number & ~(1 << location)) | (bit << location);
-};
+}
 
 // returns an array of 1s and 0s for a 2-byte number
 function getBitsFromNumber(number) {
@@ -107,7 +116,7 @@ function getBitsFromNumber(number) {
     bits.push(getBit(number, i));
   }
   return bits;
-};
+}
 
 // returns the next 2-byte number
 function getNumberFromBits(bytes, history) {
@@ -120,7 +129,7 @@ function getNumberFromBits(bytes, history) {
     pos++;
   }
   return number;
-};
+}
 
 // returns an array of 1s and 0s for the string 'message'
 function getMessageBits(message) {
@@ -130,7 +139,7 @@ function getMessageBits(message) {
     messageBits = messageBits.concat(getBitsFromNumber(code));
   }
   return messageBits;
-};
+}
 
 // gets the next location to store a bit
 function getNextLocation(history, total) {
@@ -145,6 +154,6 @@ function getNextLocation(history, total) {
       return loc;
     }
   }
-};
+}
 
 export { decode, encode, loadImage };
